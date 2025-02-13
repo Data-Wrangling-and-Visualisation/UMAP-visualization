@@ -5,6 +5,12 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{datetime}
+\hypersetup{
+	colorlinks=true, 
+	linkcolor=blue, 
+	urlcolor=blue, 
+	citecolor=blue
+}
 
 \setlength{\parindent}{0pt} % Disable indentation for new paragraphs
 
@@ -60,7 +66,11 @@ All other obligatory steps are provided:
 	\item \textbf{UMAP Algorithm:} this step applies \texttt{UMAP}
 	      algorithm to the input data and streams the resulting
 	      embeddings on each iteration to the visualization app. For
-	      algorithm implementation, we will use \texttt{NumPy}
+	      algorithm implementation, we will use original \texttt{UMAP}
+	      \href{https://github.com/lmcinnes/umap/}{implementation}
+	      as backbone with some modifications (control over NN search
+	      algorithm, embedding streaming) in \texttt{NumPy},
+	      \texttt{SciPy}
 	\item \textbf{Data Delivery:} for streaming purposes, we will use
 	      \texttt{REST API} to deliver the embeddings to the frontend.
 	      For implementation, we will use \texttt{FastAPI} library
@@ -99,8 +109,8 @@ provide a rough estimation of the project milestones:
 	      possibly some optimizations and testing
 	\item \textbf{Week 4-5:} Creating pipeline for effective data delivery
 	\item \textbf{Week 6-7:} Creating frontend visualization app
-	\item \textbf{Week 8:} Final testing and deployment, presentation 
-    preparation
+	\item \textbf{Week 8:} Final testing and deployment, presentation
+	      preparation
 \end{itemize}
 
 \end{document}
