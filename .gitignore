@@ -1,4 +1,7 @@
-proposal/*
-!proposal/main.pdf
-!proposal/main.tex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
 data/
