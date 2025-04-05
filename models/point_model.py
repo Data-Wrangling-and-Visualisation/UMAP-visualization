@@ -3,4 +3,11 @@ from pydantic import BaseModel
 
 class Point(BaseModel):
     pos: Tuple[float, float, float]
-    label: int
+
+class Frame(BaseModel):
+    points: List[Point]
+
+class Animation(BaseModel):
+    frames: List[Frame]
+    labels: List[int]
+
