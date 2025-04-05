@@ -5,7 +5,6 @@ const multer = require('multer');
 const app = express();
 const port = 8000;
 
-// Configure multer for file uploads
 const upload = multer({ dest: 'uploads/' });
 
 app.use(express.static(path.join(__dirname, '.')));
@@ -20,7 +19,15 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
     }
 
     console.log(`File uploaded: ${req.file.originalname}`);
-    res.json({ message: 'File received and processing started' });
+    
+    // Mock 3D points for visualization
+    const points = Array.from({ length: 100 }, () => [
+        Math.random() * 10 - 5,
+        Math.random() * 10 - 5,
+        Math.random() * 10 - 5,
+    ]);
+
+    res.json({ message: 'File received and processing started', points });
 });
 
 app.listen(port, () => {
