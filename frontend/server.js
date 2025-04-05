@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
+const FormData = require('form-data');
+const fs = require('fs');
 
 const app = express();
 const port = 8000;
@@ -20,21 +22,26 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
 
     console.log(`File uploaded: ${req.file.originalname}`);
 
-    // const points = Array.from({ length: 100 }, () => [
-    //     Math.random(),
-    //     Math.random(),
-    //     Math.random() + 3,
-    // ]);
+    const form = new FormData();
+    form.append('file', fs.createReadStream(req.file.path), req.file.originalname);
 
-    const points = Array.from({ length: 10 }, () =>
-        Array.from({ length: 50 }, () => [
-            Math.random(),
-            Math.random(),
-            Math.random() + 3,
-        ])
-    );
-
-    res.json({ message: 'File received and processing started', points });
+    form.submit('http://backend:8123/data2emb', (err, backendRes) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        let data = '';
+        backendRes.on('data', chunk => {
+            data += chunk;
+        });
+        backendRes.on('end', () => {
+            try {
+                const result = JSON.parse(data);
+                res.json({ message: 'File received and processing started', points: result.embeddings });
+            } catch (e) {
+                res.status(500).json({ error: 'Invalid JSON from backend' });
+            }
+        });
+    });
 });
 
 app.listen(port, () => {

@@ -53,9 +53,8 @@ function renderFrame(frameIndex) {
             color: 'rgba(0, 0, 255, 0.8)'
         }
     };
-    const layout = currentCamera ? { scene: { camera: currentCamera } } : {};
-    // Use Plotly.react to update the data while preserving the view
-    Plotly.react('visualization-container', [trace], layout);
+
+    Plotly.react('visualization-container', [trace]);
 }
 
 
