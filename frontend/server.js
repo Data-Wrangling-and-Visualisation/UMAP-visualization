@@ -19,12 +19,20 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
     }
 
     console.log(`File uploaded: ${req.file.originalname}`);
-    
-    const points = Array.from({ length: 100 }, () => [
-        Math.random(),
-        Math.random(),
-        Math.random() + 3,
-    ]);
+
+    // const points = Array.from({ length: 100 }, () => [
+    //     Math.random(),
+    //     Math.random(),
+    //     Math.random() + 3,
+    // ]);
+
+    const points = Array.from({ length: 10 }, () =>
+        Array.from({ length: 50 }, () => [
+            Math.random(),
+            Math.random(),
+            Math.random() + 3,
+        ])
+    );
 
     res.json({ message: 'File received and processing started', points });
 });

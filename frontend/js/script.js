@@ -1,3 +1,6 @@
+let frames = [];
+let currentCamera = null; // new variable to store camera state
+
 document.getElementById('submit-csv').addEventListener('click', () => {
     const fileInput = document.getElementById('csv-file');
     const file = fileInput.files[0];
@@ -17,35 +20,50 @@ document.getElementById('submit-csv').addEventListener('click', () => {
         .then(response => response.json())
         .then(data => {
             console.log('Server response:', data);
-            render3DVisualization(data.points); // Call the visualization function
+            frames = data.points; // Assume data.points is an array of 10 frames each of 50 points (3d)
+            renderFrame(0); // render first frame
         })
         .catch(error => console.error('Error:', error));
 });
 
-// Function to render 3D visualization
-function render3DVisualization(points) {
-    const container = document.getElementById('visualization-container');
-    container.innerHTML = ''; // Clear previous visualizations
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(renderer.domElement);
-
-    const geometry = new THREE.BufferGeometry();
-    const vertices = new Float32Array(points.flat());
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-
-    const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.05 });
-    const pointCloud = new THREE.Points(geometry, material);
-    scene.add(pointCloud);
-
-    camera.position.z = 5;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-    }
-    animate();
+// Update renderFrame to use Plotly.react and preserve camera orientation.
+function renderFrame(frameIndex) {
+    const points = frames[frameIndex];
+    const x = [], y = [], z = [];
+    points.forEach(point => {
+        // Support for both object and array formats
+        if (typeof point === 'object' && !Array.isArray(point)) {
+            x.push(point.x);
+            y.push(point.y);
+            z.push(point.z);
+        } else if (Array.isArray(point)) {
+            x.push(point[0]);
+            y.push(point[1]);
+            z.push(point[2]);
+        }
+    });
+    const trace = {
+        x,
+        y,
+        z,
+        mode: 'markers',
+        type: 'scatter3d',
+        marker: {
+            size: 5,
+            color: 'rgba(0, 0, 255, 0.8)'
+        }
+    };
+    const layout = currentCamera ? { scene: { camera: currentCamera } } : {};
+    // Use Plotly.react to update the data while preserving the view
+    Plotly.react('visualization-container', [trace], layout);
 }
+
+
+// Event listener for slider to control frames.
+document.getElementById('frame-slider').addEventListener('input', event => {
+    const frameIndex = parseInt(event.target.value);
+    document.getElementById('frame-number').textContent = frameIndex;
+    if (frames.length > 0) {
+        renderFrame(frameIndex);
+    }
+});

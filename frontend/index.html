@@ -13,9 +13,12 @@
     <main>
         <input type="file" id="csv-file" accept=".csv">
         <button id="submit-csv">Submit CSV</button>
+        <label for="frame-slider">Frame: <span id="frame-number">0</span></label>
+        <input type="range" id="frame-slider" min="0" max="9" value="0">
         <div id="visualization-container" style="width: 100%; height: 500px;"></div>
     </main>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="module" src="js/script.js"></script>
 </body>
 </html>
