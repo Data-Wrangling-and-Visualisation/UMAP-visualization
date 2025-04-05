@@ -5,3 +5,4 @@
 *.out
 *.synctex.gz
 data/
+node_modules
