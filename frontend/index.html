@@ -7,15 +7,32 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header>
-        <h1>UMAP</h1>
+    <header style="font-family: monospace; text-align: center; padding: 20px;">
+        <h1 style="transition: transform 0.3s; cursor: pointer;"> DWV Project </h1>
+        <h3>powerfull tool to see the process of training data embeddings</h3>
+      
     </header>
+    <style>
+        header h1:hover {
+            transform: scale(1.1);
+        }
+    </style>
     <main>
-        <input type="file" id="csv-file" accept=".csv">
-        <button id="submit-csv">Submit CSV</button>
+        <style>
+            .single-button {
+                cursor: pointer;
+                transition: transform 0.3s;
+            }
+            .single-button:hover {
+                background-color: #65c436;
+                transform: scale(1.05);
+            }
+        </style>
+        <input type="file" id="csv-file" style="display: none;" accept=".csv">
+        <button class="single-button" id="upload-csv">Upload CSV</button>
+        <div id="visualization-container" style="width: 100%; height: 500px;"></div>
         <label for="frame-slider">Frame: <span id="frame-number">0</span></label>
         <input type="range" id="frame-slider" min="0" max="9" value="0">
-        <div id="visualization-container" style="width: 100%; height: 500px;"></div>
     </main>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>

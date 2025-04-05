@@ -1,14 +1,15 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: monospace;
     text-align: center;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0; /* new background color */
+    background-color: #fff;
+    color: #000;
 }
 
 header {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #000;
+    color: #fff;
     padding: 20px 0;
 }
 
@@ -21,14 +22,17 @@ button {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #000;
+    color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
+    transition: transform 0.2s;
 }
 
 button:hover {
-    background-color: #45a049;
+    transform: scale(1.05);
+    background-color: #fff;
+    color: #000;
 }
 
 /* Center main content */
@@ -51,10 +55,54 @@ input[type="file"] {
     width: 90%;
     max-width: 800px;
     height: 500px;
-    border: 2px solid #4CAF50;
+    border: 2px solid #000;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     background-color: #fff;
     margin: 20px auto;
     padding: 10px;
+    transition: transform 0.2s;
+}
+
+#visualization-container:hover {
+    transform: scale(1.02);
+}
+
+#frame-slider {
+    -webkit-appearance: none;
+    width: 20%;
+    height: 20px;
+    background: black;
+    border-radius: 10px;
+    outline: none;
+    transition: transform 0.3s, background-color 0.3s;
+    font-family: monospace;
+}
+
+#frame-slider:hover {
+    transform: scale(1.05);
+}
+
+#frame-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid black;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#frame-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid black;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+label {
+    font-family: monospace;
 }
