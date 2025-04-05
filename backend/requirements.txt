@@ -1,13 +1,7 @@
+numpy
 pandas
 fastapi
-pydantic
 uvicorn
-Pillow
-sphinx>=1.8
-sphinx_gallery
-matplotlib
 pillow
-sphinx_rtd_theme
-numpydoc
-scipy
 python-multipart
+git+https://github.com/V1adych/umap.git
