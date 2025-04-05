@@ -1,5 +1,6 @@
 let frames = [];
 let colors = [];
+let currentCamera = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const uploadBtn = document.getElementById('upload-csv');
@@ -85,6 +86,8 @@ function renderFrame(frameIndex) {
             name: `Label ${label}`
         };
     });
+    const layout = currentCamera ? { scene: { camera: currentCamera } } : {};
+
     Plotly.react('visualization-container', traces, layout).then(gd => {
         gd.on('plotly_relayout', d => {
             if (d['scene.camera']) {
