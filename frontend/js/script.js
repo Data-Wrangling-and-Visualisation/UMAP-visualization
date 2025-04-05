@@ -1,5 +1,5 @@
 let frames = [];
-let currentCamera = null; // new variable to store camera state
+let colors = [];
 
 document.getElementById('submit-csv').addEventListener('click', () => {
     const fileInput = document.getElementById('csv-file');
@@ -20,8 +20,9 @@ document.getElementById('submit-csv').addEventListener('click', () => {
         .then(response => response.json())
         .then(data => {
             console.log('Server response:', data);
-            frames = data.points; // Assume data.points is an array of 10 frames each of 50 points (3d)
-            renderFrame(0); // render first frame
+            frames = data.points; 
+            colors = data.colors;
+            renderFrame(0); 
         })
         .catch(error => console.error('Error:', error));
 });
@@ -50,7 +51,9 @@ function renderFrame(frameIndex) {
         type: 'scatter3d',
         marker: {
             size: 5,
-            color: 'rgba(0, 0, 255, 0.8)'
+            color: colors,         // use global colors variable
+            colorscale: 'Viridis', // add colorscale
+            colorbar: { title: "Category" }
         }
     };
 
@@ -58,7 +61,7 @@ function renderFrame(frameIndex) {
 }
 
 
-// Event listener for slider to control frames.
+// Event listener for slider to control points.
 document.getElementById('frame-slider').addEventListener('input', event => {
     const frameIndex = parseInt(event.target.value);
     document.getElementById('frame-number').textContent = frameIndex;

@@ -12,6 +12,10 @@ from umap import UMAP
 
 from models import EmbeddingOutput
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 app = FastAPI()
 
 MAX_UNIQUE_CATEGORIES = 20
@@ -53,16 +57,20 @@ async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
         raise HTTPException(status_code=400, detail="Only .csv files are supported")
 
     df: pd.DataFrame = pd.read_csv(file.file)
-    x = df.drop(columns=["target"], errors="ignore")
+    x = df.drop(columns=["label"], errors="ignore")
     y = None
-    if "target" in df.columns:
-        y = df["target"].values.astype(np.int32).tolist()
+    if "label" in df.columns:
+        logger.info("label column found, using it for coloring")
+        y = df["label"].values.astype(np.int32).tolist()
 
     x = preprocess_data(x)
 
     umap = UMAP(n_components=3)
     _ = umap.fit_transform(x)
     embedding_history = umap.embedding_hist
+
+    logger.info(f"UMAP embedding shape: {embedding_history[-1].shape}")
+    logger.info(f"UMAP embedding history length: {len(embedding_history)}")
 
     return EmbeddingOutput(
         embeddings=[
