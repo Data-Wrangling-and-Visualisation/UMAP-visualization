@@ -1,65 +1,71 @@
-from typing import List, Tuple
-from io import BytesIO
-from PIL import Image
-
 from fastapi import FastAPI, File, UploadFile, HTTPException
-import pandas as pd
 
 import numpy as np
+import fireducks.pandas as pd
+
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
 
 from umap import UMAP
 
+from models import EmbeddingOutput
+
 app = FastAPI()
 
-
-def get_image_features(bytes: str) -> np.ndarray:
-    image = Image.open(BytesIO(bytes))
-    return np.array(image).flatten()
+MAX_UNIQUE_CATEGORIES = 20
 
 
-def emb2anim(embedding_history: List[np.ndarray], y: np.ndarray):
-    list_of_frames: List[List[Tuple[float, float, float]]] = []
-    for frame in embedding_history:
-        list_of_frames.append([(point[0], point[1], point[2]) for point in frame])
-    labels = [int(y_item) for y_item in y]
+def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
+    cat_features = df.select_dtypes(include=["object"]).columns.tolist()
+    num_features = df.select_dtypes(include=["number"]).columns.tolist()
+    cat_features = [
+        col for col in cat_features if df[col].nunique() <= MAX_UNIQUE_CATEGORIES
+    ]
 
-    if len(list_of_frames) == 0:
-        raise ValueError("No frames found in the embedding history")
+    cat_preprocessor = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("encoder", OneHotEncoder(handle_unknown="ignore")),
+        ]
+    )
+    num_preprocessor = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="mean")),
+            ("scaler", StandardScaler()),
+        ]
+    )
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("cat", cat_preprocessor, cat_features),
+            ("num", num_preprocessor, num_features),
+        ]
+    )
+    preprocessed_data = preprocessor.fit_transform(df)
 
-    if len(labels) != len(list_of_frames[0]):
-        raise ValueError("Length of labels must match the number of frames")
-
-    animation = {"frames": list_of_frames, "labels": labels}
-
-    return animation
+    return pd.DataFrame(preprocessed_data, columns=preprocessor.get_feature_names_out())
 
 
 @app.post("/data2emb")
-async def data2emb(file: UploadFile = File(...)) -> dict:
+async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only .csv files are supported")
 
-    try:
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(file.file)
+    df: pd.DataFrame = pd.read_csv(file.file)
+    x = df.drop(columns=["target"], errors="ignore")
+    y = None
+    if "target" in df.columns:
+        y = df["target"].values.astype(np.int32).tolist()
 
-        # Check for required columns
-        data = np.array([get_image_features(bytes["bytes"]) for bytes in df["image"]])
+    x = preprocess_data(x)
 
-        umap = UMAP()
-        umap.n_components = 3
-        umap.fit_transform(data)
-        try:
-            anim = emb2anim(umap.embedding_hist, df["label"])
-        except Exception as e:
-            raise HTTPException(
-                status_code=400, detail=f"Error creating animation: {str(e)}"
-            )
-        result = {"frames": anim["frames"], "labels": anim["labels"]}
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
+    umap = UMAP(n_components=3)
+    _ = umap.fit_transform(x)
+    embedding_history = umap.embedding_hist
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the UMAP Animation API!"}
+    return EmbeddingOutput(
+        embeddings=[[tuple(vector) for vector in embedding] for embedding in embedding_history],
+        colors=y,
+    )
+
