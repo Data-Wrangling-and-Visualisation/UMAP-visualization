@@ -3,3 +3,5 @@ pyarrow
 fsspec
 matplotlib
 huggingface_hub
+fastapi
+pydantic
