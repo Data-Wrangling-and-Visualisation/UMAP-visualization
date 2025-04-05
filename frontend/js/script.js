@@ -20,16 +20,16 @@ document.getElementById('submit-csv').addEventListener('click', () => {
         .then(response => response.json())
         .then(data => {
             console.log('Server response:', data);
-            frames = data.points; 
+            frames = data.points;
             colors = data.colors;
             // Update slider max based on number of frames
             document.getElementById('frame-slider').max = frames.length - 1;
-            renderFrame(0); 
+            renderFrame(0);
         })
         .catch(error => console.error('Error:', error));
 });
 
-// Update renderFrame to group points by color label and use fixed palette.
+// Update renderFrame to group points by color label and use rainbow colormap.
 function renderFrame(frameIndex) {
     const framePoints = frames[frameIndex];
     const groups = {};
@@ -47,26 +47,30 @@ function renderFrame(frameIndex) {
         }
         const label = colors[i];
         if (!(label in groups)) {
-            groups[label] = {x: [], y: [], z: []};
+            groups[label] = { x: [], y: [], z: [] };
         }
         groups[label].x.push(xVal);
         groups[label].y.push(yVal);
         groups[label].z.push(zVal);
     });
-    // Define a fixed palette for discrete labels
-    const palette = ["blue", "red", "green", "purple", "orange", "brown", "pink", "gray", "olive", "cyan"];
-    const traces = Object.keys(groups).sort().map((label, idx) => ({
-        x: groups[label].x,
-        y: groups[label].y,
-        z: groups[label].z,
-        mode: 'markers',
-        type: 'scatter3d',
-        marker: {
-            size: 5,
-            color: palette[idx % palette.length]
-        },
-        name: `Label ${label}`
-    }));
+    // Create traces with rainbow colormap using HSL
+    const groupKeys = Object.keys(groups).sort();
+    const totalGroups = groupKeys.length;
+    const traces = groupKeys.map((label, idx) => {
+        const groupColor = `hsl(${(360 * idx / totalGroups).toFixed(0)}, 100%, 50%)`;
+        return {
+            x: groups[label].x,
+            y: groups[label].y,
+            z: groups[label].z,
+            mode: 'markers',
+            type: 'scatter3d',
+            marker: {
+                size: 5,
+                color: groupColor
+            },
+            name: `Label ${label}`
+        };
+    });
     Plotly.react('visualization-container', traces);
 }
 
