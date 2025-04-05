@@ -11,3 +11,4 @@ class Animation(BaseModel):
     frames: List[Frame]
     labels: List[int]
 
+ 
