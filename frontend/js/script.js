@@ -1,35 +1,49 @@
 let frames = [];
 let colors = [];
 
-document.getElementById('submit-csv').addEventListener('click', () => {
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadBtn = document.getElementById('upload-csv');
     const fileInput = document.getElementById('csv-file');
-    const file = fileInput.files[0];
 
-    if (!file) {
-        console.error('No file selected.');
-        return;
-    }
+    // Trigger file selection when the user clicks the button
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
 
-    const formData = new FormData();
-    formData.append('csv', file);
+    // Once a file is chosen, upload it
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) {
+            console.error('No file selected.');
+            return;
+        }
 
-    fetch('/process-data', {
-        method: 'POST',
-        body: formData,
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Server response:', data);
-            frames = data.points;
-            colors = data.colors;
-            // Update slider max based on number of frames
-            document.getElementById('frame-slider').max = frames.length - 1;
-            renderFrame(0);
+        const formData = new FormData();
+
+        formData.append('csv', file);
+
+        if (!file) {
+            console.error('No file selected.');
+            return;
+        }
+    
+        fetch('/process-data', {
+            method: 'POST',
+            body: formData,
         })
-        .catch(error => console.error('Error:', error));
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                frames = data.points; 
+                colors = data.colors;
+                // Update slider max based on number of frames
+                document.getElementById('frame-slider').max = frames.length - 1;
+                renderFrame(0); 
+            })
+            .catch(error => console.error('Error:', error));
+    });
 });
-
-// Update renderFrame to group points by color label and use rainbow colormap.
+// Update renderFrame to group points by color label and use fixed palette.
 function renderFrame(frameIndex) {
     const framePoints = frames[frameIndex];
     const groups = {};
