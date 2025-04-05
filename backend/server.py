@@ -65,7 +65,8 @@ async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
     embedding_history = umap.embedding_hist
 
     return EmbeddingOutput(
-        embeddings=[[tuple(vector) for vector in embedding] for embedding in embedding_history],
+        embeddings=[
+            [tuple(vector) for vector in embedding] for embedding in embedding_history
+        ],
         colors=y,
     )
-
