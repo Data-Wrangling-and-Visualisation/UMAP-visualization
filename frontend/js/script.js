@@ -31,7 +31,6 @@ function renderFrame(frameIndex) {
     const points = frames[frameIndex];
     const x = [], y = [], z = [];
     points.forEach(point => {
-        // Support for both object and array formats
         if (typeof point === 'object' && !Array.isArray(point)) {
             x.push(point.x);
             y.push(point.y);
@@ -50,14 +49,18 @@ function renderFrame(frameIndex) {
         type: 'scatter3d',
         marker: {
             size: 5,
-            color: 'rgba(0, 0, 255, 0.8)'
+            color: 'rgba(0, 155, 255, 0.8)'
         }
     };
     const layout = currentCamera ? { scene: { camera: currentCamera } } : {};
-    // Use Plotly.react to update the data while preserving the view
-    Plotly.react('visualization-container', [trace], layout);
+    Plotly.react('visualization-container', [trace], layout).then(gd => {
+        gd.on('plotly_relayout', d => {
+            if (d['scene.camera']) {
+                currentCamera = d['scene.camera'];
+            }
+        });
+    });
 }
-
 
 // Event listener for slider to control frames.
 document.getElementById('frame-slider').addEventListener('input', event => {
