@@ -1,10 +1,9 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import pandas as pd
 from typing import List
-from ..models.point_model import Point
 from io import BytesIO
 from PIL import Image
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -12,49 +11,38 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 
 from umap import UMAP
-
 app = FastAPI()
+
 def get_image_features(bytes: str) -> np.ndarray:
     image = Image.open(BytesIO(bytes))
     return np.array(image).flatten()  
 
-def save_embedding_animation(
+def emb2anim(
     embedding_history: List[np.ndarray],
-    y: np.ndarray,
-    output_file: str,
+    y: np.ndarray
 ):
-    all_points = np.concatenate(embedding_history)
-    x_min, x_max = np.min(all_points[:, 0]), np.max(all_points[:, 0])
-    y_min, y_max = np.min(all_points[:, 1]), np.max(all_points[:, 1])
-
-    x_margin = (x_max - x_min) * 0.05
-    y_margin = (y_max - y_min) * 0.05
-
-    fig, ax = plt.subplots()
-    ax.axis("off")
+    list_of_frames: List[List[Tuple[float,float,float]]] = []
+    for frame in embedding_history:
+        list_of_frames.append([(point[0], point[1], point[2]) for point in frame])
+    labels = [int(y_item) for y_item in y]
     
-    ax.set_xlim(x_min - x_margin, x_max + x_margin)
-    ax.set_ylim(y_min - y_margin, y_max + y_margin)
-
-    sc = ax.scatter(
-        embedding_history[0][:, 0], embedding_history[0][:, 1], c=y, cmap="tab10"
-    )
-
-    def update(frame):
-        sc.set_offsets(embedding_history[frame])
-        return [sc]
-
-    ani = animation.FuncAnimation(
-        fig, update, frames=len(embedding_history), interval=50, blit=True
-    )
-
-    writer = animation.FFMpegWriter(fps=20)
-    ani.save(output_file, writer=writer)
-    plt.close(fig)
-    print(f"Animation saved to {output_file}")
+    if(len(list_of_frames) == 0):
+        raise ValueError("No frames found in the embedding history")
     
+    if(len(labels) != len(list_of_frames[0])):
+        raise ValueError("Length of labels must match the number of frames")
+    
+    animation = {
+        "frames":list_of_frames,
+        "labels":labels
+    }
+    
+    return animation
+
+    
+ 
 @app.post("/data2emb")
-async def data2emb(file: UploadFile = File(...)) -> List[List[Point]]:
+async def data2emb(file: UploadFile = File(...)) -> dict:
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Only .csv files are supported")
     
@@ -66,16 +54,16 @@ async def data2emb(file: UploadFile = File(...)) -> List[List[Point]]:
         data = np.array([get_image_features(bytes["bytes"]) for bytes in df["image"]])
         
         umap = UMAP()
-        embedding = umap.fit_transform(data)
-        
-        
-        
-        # Convert DataFrame to the required format
-        result = []
-        for _, row in df.iterrows():
-            point = Point(pos=[row[x_col], row[y_col], row[z_col]], label=row[label_col])
-            result.append(point)
-        
-        return [result]
+        umap.n_components = 3
+        umap.fit_transform(data)
+        try:
+            anim = emb2anim(umap.embedding_hist, df["label"])
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error creating animation: {str(e)}")
+        result = {
+            "frames": anim["frames"],
+            "labels": anim["labels"]
+        }      
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
