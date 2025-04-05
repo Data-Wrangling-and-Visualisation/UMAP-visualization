@@ -20,11 +20,10 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
 
     console.log(`File uploaded: ${req.file.originalname}`);
     
-    // Mock 3D points for visualization
     const points = Array.from({ length: 100 }, () => [
-        Math.random() * 10 - 5,
-        Math.random() * 10 - 5,
-        Math.random() * 10 - 5,
+        Math.random(),
+        Math.random(),
+        Math.random() + 3,
     ]);
 
     res.json({ message: 'File received and processing started', points });
