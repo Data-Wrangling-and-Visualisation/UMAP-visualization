@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update slider max based on number of frames
                 document.getElementById('frame-slider').max = frames.length - 1;
                 renderFrame(0); 
+                renderD3Frame(0);
             })
             .catch(error => console.error('Error:', error));
     });
@@ -98,11 +99,52 @@ function renderFrame(frameIndex) {
     });
 }
 
+// Render a 2D scatter plot for the first two dimensions using D3
+function renderD3Frame(frameIndex) {
+    const framePoints = frames[frameIndex] || [];
+    d3.select('#d3-container').selectAll('svg').remove();
+
+    const width = 800, height = 500, margin = 30;
+    const svg = d3.select('#d3-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Prepare x, y arrays from first two dimensions
+    const data2D = framePoints.map((pt, i) => ({
+        x: Array.isArray(pt) ? pt[0] : pt.x,
+        y: Array.isArray(pt) ? pt[1] : pt.y,
+        label: colors[i]
+    }));
+
+    // Scales
+    const xExtent = d3.extent(data2D, d => d.x);
+    const yExtent = d3.extent(data2D, d => d.y);
+    const xScale = d3.scaleLinear().domain(xExtent).range([margin, width - margin]);
+    const yScale = d3.scaleLinear().domain(yExtent).range([height - margin, margin]);
+
+    // Draw circles
+    svg.selectAll('circle')
+        .data(data2D)
+        .enter()
+        .append('circle')
+        .attr('cx', d => xScale(d.x))
+        .attr('cy', d => yScale(d.y))
+        .attr('r', 5)
+        .attr('fill', d => {
+            const idx = d.label;
+            return `hsl(${(360 * idx / new Set(colors).size).toFixed(0)},100%,50%)`;
+        });
+
+    // Removed legend code – the legend from Plotly is used for both plots.
+}
+
 // Event listener for slider to control points.
 document.getElementById('frame-slider').addEventListener('input', event => {
     const frameIndex = parseInt(event.target.value);
     document.getElementById('frame-number').textContent = frameIndex;
     if (frames.length > 0) {
         renderFrame(frameIndex);
+        renderD3Frame(frameIndex);
     }
 });

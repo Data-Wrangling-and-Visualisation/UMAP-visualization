@@ -106,3 +106,19 @@ input[type="file"] {
 label {
     font-family: monospace;
 }
+
+#d3-container {
+    width: 90%;
+    max-width: 800px;
+    height: 500px;
+    margin: 20px auto;
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
+    transition: transform 0.2s;
+}
+
+#d3-container:hover {
+    transform: scale(1.02);
+}
