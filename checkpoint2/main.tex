@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{datetime}
+
+\hypersetup{
+	colorlinks=true, 
+	linkcolor=blue, 
+	urlcolor=blue, 
+	citecolor=blue
+}
+
+\setlength{\parindent}{0pt} % Disable indentation for new paragraphs
+
+\title{Data Wrangling \& Visualization: Second Checkpoint \\
+ \textbf{Interactive Visualization of \texttt{UMAP} Algorithm on User Data}}
+\author{Nikita Zagainov, Dmitry Tetkin, Nikita Tsukanov}
+\date{\monthname[\the\month] \the\year}
+
+\begin{document}
+
+\maketitle
+
+\section{Overview of Our Progress}
+
+By the time of the second checkpoint, we have almost completed the plan of our project, specifically:
+\begin{itemize}
+	\item Algorithmic part:
+	      \begin{itemize}
+		      \item Original \texttt{UMAP} algorithm \href{https://github.com/lmcinnes/umap}{GitHub repository} was used as a backbone
+		      \item We modified the original implementation to enable streaming of intermediate embeddings for visualization of concrete steps
+		      \item We implemented data preprocessing pipeline to filter user input date for better quality of visualization
+	      \end{itemize}
+	\item Backend:
+	      \begin{itemize}
+		      \item We implemented a \texttt{FastAPI} backend server that accepts user input data, performs data preprocessing, and applies the \texttt{UMAP} algorithm to it, returning the history of intermediate embeddings along with the final embedding
+
+	      \end{itemize}
+	\item Frontend:
+	      \begin{itemize}
+		      \item We created a \texttt{Express.js} frontend application
+		      \item We added a single page with submission form where user can upload their data
+		      \item We added frames for 2D (using \texttt{D3.js}) and 3D (using \texttt{Plotly.js}) visualizations
+		      \item We added a slider to allow user to select the step of the algorithm to visualize
+	      \end{itemize}
+	\item Deployment:
+	      \begin{itemize}
+		      \item Every of the services is wrapped in a \texttt{Docker} container
+		      \item We provide \texttt{docker-compose} file to run the whole application
+	      \end{itemize}
+\end{itemize}
+
+\section{Next Steps}
+Our project is almost done, but it still requires some polishing and end-to-end testing. We plan to try to run the whole application on different real-world datasets and fine-tune our application where necessary
+
+\end{document}
