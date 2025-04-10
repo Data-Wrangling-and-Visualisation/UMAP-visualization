@@ -1,6 +1,9 @@
 # UMAP Visualization
 
-This project aims to create an interactive visualization web application for the UMAP algorithm. 
+This project aims to create an interactive visualization web application for the UMAP algorithm.
+
+## Preview
+![Preview Video](./public/demo.gif)
 
 ## Table of contents
 
@@ -8,6 +11,7 @@ The repository contains all the documents required for the `DWAV` course:
 
 - [Project Proposal](./proposal/main.pdf)
 - [First Checkpoint](./checkpoint1/main.pdf)
+- [Second Checkpoint](./checkpoint2/main.pdf)
 
 ## Acknowledgements
 
