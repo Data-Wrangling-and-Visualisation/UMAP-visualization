@@ -17,13 +17,9 @@ The repository contains all the documents required for the `DWAV` course:
 
 Implementation of our algorithm relies on original `UMAP` repository: [GitHub](https://github.com/lmcinnes/umap), and original paper: [ArXiV](https://arxiv.org/abs/1802.03426)
 
-## Prerequisites
+## How to run
 
-To run the project, you need to install dependencies first:
-
+To run the project, simply run
 ```bash
-pip install -r requirements.txt
-cd umap
-pip install -e .
-cd ..
+docker compose up --build -d
 ```
