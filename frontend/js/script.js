@@ -27,14 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('No file selected.');
             return;
         }
-    
+        console.log(`File selected: ${file.name}`);
+        // Send the file to the server
         fetch('/process-data', {
             method: 'POST',
             body: formData,
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Server response:', data);
+                console.log('Server responded with data');
                 frames = data.points; 
                 colors = data.colors;
                 // Update slider max based on number of frames

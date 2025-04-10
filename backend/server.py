@@ -53,9 +53,11 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
 
 @app.post("/data2emb")
 async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
+    logger.info("Received file for embedding")
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only .csv files are supported")
 
+    logger.info("Reading CSV file")
     df: pd.DataFrame = pd.read_csv(file.file)
     x = df.drop(columns=["label"], errors="ignore")
     y = None
@@ -63,6 +65,7 @@ async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
         logger.info("label column found, using it for coloring")
         y = df["label"].values.astype(np.int32).tolist()
 
+    logger.info("Preprocessing data")
     x = preprocess_data(x)
 
     umap = UMAP(n_components=3)

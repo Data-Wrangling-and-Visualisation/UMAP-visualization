@@ -36,7 +36,7 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
         backendRes.on('end', () => {
             try {
                 const result = JSON.parse(data);
-                res.json({ message: 'File received and processing started', points: result.embeddings, colors: result.colors });
+                res.json({ points: result.embeddings, colors: result.colors });
             } catch (e) {
                 res.status(500).json({ error: 'Invalid JSON from backend' });
             }
