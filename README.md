@@ -24,5 +24,5 @@ Frontend page will be available at [`localhost:8000`](http://localhost:8000), wh
 
 ## Acknowledgements
 
-Implementation of our algorithm relies on original `UMAP` repository: [GitHub](https://github.com/lmcinnes/umap), and original paper: [ArXiV](https://arxiv.org/abs/1802.03426)
+Implementation of our algorithm relies on original `UMAP` repository: [GitHub](https://github.com/lmcinnes/umap), and original paper: [arXiv](https://arxiv.org/abs/1802.03426)
 
