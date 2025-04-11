@@ -7,7 +7,7 @@ This project aims to create an interactive visualization web application for the
 
 ## Table of contents
 
-The repository contains all the documents required for the `DWAV` course:
+The repository contains all the documents required for the `DW&V` course:
 
 - [Project Proposal](./proposal/main.pdf)
 - [First Checkpoint](./checkpoint1/main.pdf)
