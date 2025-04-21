@@ -1,5 +1,5 @@
 numpy
-fireducks
+pandas
 scikit-learn
 fastapi
 uvicorn
