@@ -3,6 +3,7 @@
 This project aims to create an interactive visualization web application for the UMAP algorithm.
 
 ## Preview
+
 ![Preview Video](./public/demo.gif)
 
 ## Table of contents
