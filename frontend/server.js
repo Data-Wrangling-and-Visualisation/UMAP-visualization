@@ -36,7 +36,11 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
         backendRes.on('end', () => {
             try {
                 const result = JSON.parse(data);
-                res.json({ points: result.embeddings, colors: result.colors });
+                res.json({
+                    points: result.embeddings,
+                    colors: result.colors,
+                    labels: result.labels
+                });
             } catch (e) {
                 res.status(500).json({ error: 'Invalid JSON from backend' });
             }
@@ -67,7 +71,11 @@ app.post('/process-sample', express.json(), (req, res) => {
         backendRes.on('end', () => {
             try {
                 const result = JSON.parse(data);
-                res.json({ points: result.embeddings, colors: result.colors });
+                res.json({
+                    points: result.embeddings,
+                    colors: result.colors,
+                    labels: result.labels
+                });
             } catch {
                 res.status(500).json({ error: 'Invalid JSON from backend' });
             }

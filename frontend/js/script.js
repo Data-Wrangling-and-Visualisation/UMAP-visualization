@@ -1,5 +1,6 @@
 let frames = [];
 let colors = [];
+let labels = [];            // new: hold string labels
 let currentCamera = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Server responded with data');
                 frames = data.points; 
                 colors = data.colors;
+                labels = data.labels || [];        // capture incoming labels
                 // Update slider max based on number of frames
                 document.getElementById('epoch-slider').max = frames.length - 1;
                 renderFrame(0); 
@@ -56,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.textContent = name;
                 li.className = 'sample-item';
                 li.onclick = () => {
-                    document.getElementById('samples-panel').style.display = 'none';
+                    document.getElementById('samples-panel').classList.remove('open');
                     fetch('/process-sample', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -66,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(data => {
                         frames = data.points;
                         colors = data.colors;
+                        labels = data.labels || [];        // capture incoming labels
                         document.getElementById('epoch-slider').max = frames.length - 1;
                         renderFrame(0);
                         renderD3Frame(0);
@@ -97,30 +100,38 @@ function renderFrame(frameIndex) {
             yVal = point[1];
             zVal = point[2];
         }
-        const label = colors[i];
-        if (!(label in groups)) {
-            groups[label] = { x: [], y: [], z: [] };
+        const labelKey = colors[i];
+        const textVal = labels[i] != null ? labels[i] : labelKey;
+        if (!(labelKey in groups)) {
+            groups[labelKey] = { x: [], y: [], z: [], text: [] };
         }
-        groups[label].x.push(xVal);
-        groups[label].y.push(yVal);
-        groups[label].z.push(zVal);
+        groups[labelKey].x.push(xVal);
+        groups[labelKey].y.push(yVal);
+        groups[labelKey].z.push(zVal);
+        groups[labelKey].text.push(textVal);
     });
     // Create traces with rainbow colormap using HSL
     const groupKeys = Object.keys(groups).sort();
     const totalGroups = groupKeys.length;
-    const traces = groupKeys.map((label, idx) => {
+    const traces = groupKeys.map((labelKey, idx) => {
         const groupColor = `hsl(${(360 * idx / totalGroups).toFixed(0)}, 100%, 50%)`;
         return {
-            x: groups[label].x,
-            y: groups[label].y,
-            z: groups[label].z,
+            x: groups[labelKey].x,
+            y: groups[labelKey].y,
+            z: groups[labelKey].z,
+            text: groups[labelKey].text,             // hover text
             mode: 'markers',
             type: 'scatter3d',
             marker: {
                 size: 5,
                 color: groupColor
             },
-            name: `Label ${label}`
+            hovertemplate:
+                '%{text}<br>' +
+                'x: %{x:.2f}<br>' +
+                'y: %{y:.2f}<br>' +
+                'z: %{z:.2f}<extra></extra>',
+            name: `Group ${labelKey}`
         };
     });
     const layout = currentCamera ? { scene: { camera: currentCamera } } : {};
@@ -149,7 +160,8 @@ function renderD3Frame(frameIndex) {
     const data2D = framePoints.map((pt, i) => ({
         x: Array.isArray(pt) ? pt[0] : pt.x,
         y: Array.isArray(pt) ? pt[1] : pt.y,
-        label: colors[i]
+        labelKey: colors[i],
+        text: labels[i] != null ? labels[i] : colors[i]
     }));
 
     // Scales
@@ -167,9 +179,11 @@ function renderD3Frame(frameIndex) {
         .attr('cy', d => yScale(d.y))
         .attr('r', 5)
         .attr('fill', d => {
-            const idx = d.label;
+            const idx = d.labelKey;
             return `hsl(${(360 * idx / new Set(colors).size).toFixed(0)},100%,50%)`;
-        });
+        })
+        .append('title')                      // show label on hover
+        .text(d => d.text);
 
     // Removed legend code – the legend from Plotly is used for both plots.
 }

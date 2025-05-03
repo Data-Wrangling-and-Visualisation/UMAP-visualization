@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
 
 import numpy as np
@@ -50,6 +52,9 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(preprocessed_data, columns=preprocessor.get_feature_names_out())
 
+def get_colors(label: pd.Series) -> List[int]:
+    color_map = {label: i for i, label in enumerate(label.unique())}
+    return label.map(color_map).astype(np.int32).tolist()
 
 @app.post("/data2emb")
 async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
@@ -66,7 +71,8 @@ async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
     y = None
     if "label" in df.columns:
         logger.info("label column found, using it for coloring")
-        y = df["label"].values.astype(np.int32).tolist()
+        y = df["label"].values.astype(np.str_).tolist()
+        color = get_colors(df["label"])
 
     logger.info("Preprocessing data")
     x = preprocess_data(x)
@@ -82,5 +88,6 @@ async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
         embeddings=[
             [tuple(vector) for vector in embedding] for embedding in embedding_history
         ],
-        colors=y,
+        colors=color,
+        labels=y,
     )
