@@ -59,6 +59,9 @@ async def data2emb(file: UploadFile = File(...)) -> EmbeddingOutput:
 
     logger.info("Reading CSV file")
     df: pd.DataFrame = pd.read_csv(file.file)
+    if len(df) > 2000:
+        df = df.sample(2000)
+
     x = df.drop(columns=["label"], errors="ignore")
     y = None
     if "label" in df.columns:

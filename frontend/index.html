@@ -10,13 +10,45 @@
     <header style="font-family: monospace; text-align: center; padding: 20px;">
         <h1 style="transition: transform 0.3s; cursor: pointer;"> UMAP Visualization </h1>
         <h3>A Powerful tool to see the process of fitting UMAP embeddings</h3>
-      
     </header>
     <style>
         header h1:hover {
             transform: scale(1.1);
         }
     </style>
+    <section id="description">
+        <h2>About This Application</h2>
+        <p>
+            UMAP (Uniform Manifold Approximation and Projection) is a state-of-the-art
+            dimensionality reduction technique that preserves both local and global
+            structures in your data. It projects high-dimensional datasets into 2D or
+            3D space, making it easy to spot clusters, patterns, and outliers.
+        </p>
+        <h3>Why Use UMAP?</h3>
+        <p>
+            UMAP uncovers the underlying topology of your data, helping with visual
+            exploration, cluster analysis, and anomaly detection in machine learning
+            workflows.
+        </p>
+        <h3>How to Use This Tool</h3>
+        <ol>
+            <li>
+                Upload a CSV file containing your dataset. To color-code points by
+                category, include a <code>label</code> column.
+            </li>
+            <li>
+                Wait a few seconds for UMAP to process the data on the server.
+            </li>
+            <li>
+                A 3D scatter plot will appear. Rotate, zoom, and pan to explore your
+                embedding.
+            </li>
+            <li>
+                Use the <strong>epoch</strong> slider below to visualize the fitting
+                process step by step.
+            </li>
+        </ol>
+    </section>
     <main>
         <style>
             .single-button {
@@ -31,8 +63,8 @@
         <input type="file" id="csv-file" style="display: none;" accept=".csv">
         <button class="single-button" id="upload-csv">Upload CSV</button>
         <div id="d3-container" style="width: 100%; height: 500px;"></div>
-        <label for="frame-slider">Frame: <span id="frame-number">0</span></label>
-        <input type="range" id="frame-slider" min="0" max="1" value="0">
+        <label for="epoch-slider">Epoch: <span id="epoch-number">0</span></label>
+        <input type="range" id="epoch-slider" min="0" max="1" value="0">
         <div id="visualization-container" style="width: 100%; height: 500px;"></div>
     </main>
 

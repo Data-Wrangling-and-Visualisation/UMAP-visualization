@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 frames = data.points; 
                 colors = data.colors;
                 // Update slider max based on number of frames
-                document.getElementById('frame-slider').max = frames.length - 1;
+                document.getElementById('epoch-slider').max = frames.length - 1;
                 renderFrame(0); 
                 renderD3Frame(0);
             })
@@ -140,9 +140,9 @@ function renderD3Frame(frameIndex) {
 }
 
 // Event listener for slider to control points.
-document.getElementById('frame-slider').addEventListener('input', event => {
+document.getElementById('epoch-slider').addEventListener('input', event => {
     const frameIndex = parseInt(event.target.value);
-    document.getElementById('frame-number').textContent = frameIndex;
+    document.getElementById('epoch-number').textContent = frameIndex;
     if (frames.length > 0) {
         renderFrame(frameIndex);
         renderD3Frame(frameIndex);
