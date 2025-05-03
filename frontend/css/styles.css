@@ -141,3 +141,68 @@ label {
     margin-top: 0;
     font-family: monospace;
 }
+
+/* Button row layout */
+.button-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Sample gallery panel */
+#samples-panel {
+    position: fixed;
+    top: 100px;
+    left: 0;
+    width: 220px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #f0f0f0;
+    border: 2px solid #000;      /* match plot borders */
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transform: translateX(-110%);
+    transition: transform 0.3s ease;
+}
+
+#samples-panel.open {
+    transform: translateX(0);
+}
+
+#samples-panel h3 {
+    margin-top: 0;
+    font-size: 18px;
+    text-align: center;
+}
+
+#samples-panel ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sample-item {
+    padding: 6px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.sample-item:hover {
+    background: #ddd;
+}
+
+/* Close button inside panel */
+#samples-panel .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #333;
+}

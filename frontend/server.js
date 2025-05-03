@@ -44,6 +44,37 @@ app.post('/process-data', upload.single('csv'), (req, res) => {
     });
 });
 
+// Serve list of sample CSVs
+app.get('/samples', (req, res) => {
+    const galleryDir = path.join(__dirname, 'gallery');
+    const files = fs.readdirSync(galleryDir).filter(f => f.endsWith('.csv'));
+    res.json({ samples: files });
+});
+
+// Process a chosen sample without user upload
+app.post('/process-sample', express.json(), (req, res) => {
+    const { filename } = req.body;
+    const filePath = path.join(__dirname, 'gallery', filename);
+    if (!fs.existsSync(filePath)) {
+        return res.status(400).json({ error: 'Sample not found' });
+    }
+    const form = new FormData();
+    form.append('file', fs.createReadStream(filePath), filename);
+    form.submit('http://backend:8123/data2emb', (err, backendRes) => {
+        if (err) return res.status(500).json({ error: err.message });
+        let data = '';
+        backendRes.on('data', chunk => { data += chunk });
+        backendRes.on('end', () => {
+            try {
+                const result = JSON.parse(data);
+                res.json({ points: result.embeddings, colors: result.colors });
+            } catch {
+                res.status(500).json({ error: 'Invalid JSON from backend' });
+            }
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

@@ -45,6 +45,41 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => console.error('Error:', error));
     });
+
+    // Fetch and show sample list
+    fetch('/samples')
+        .then(r => r.json())
+        .then(data => {
+            const list = document.getElementById('samples-list');
+            data.samples.forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                li.className = 'sample-item';
+                li.onclick = () => {
+                    document.getElementById('samples-panel').style.display = 'none';
+                    fetch('/process-sample', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: name })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        frames = data.points;
+                        colors = data.colors;
+                        document.getElementById('epoch-slider').max = frames.length - 1;
+                        renderFrame(0);
+                        renderD3Frame(0);
+                    })
+                    .catch(console.error);
+                };
+                list.appendChild(li);
+            });
+        });
+
+    // Toggle sample panel with slide animation
+    const panel = document.getElementById('samples-panel');
+    document.getElementById('show-samples').addEventListener('click', () => panel.classList.add('open'));
+    document.getElementById('close-samples').addEventListener('click', () => panel.classList.remove('open'));
 });
 // Update renderFrame to group points by color label and use fixed palette.
 function renderFrame(frameIndex) {
