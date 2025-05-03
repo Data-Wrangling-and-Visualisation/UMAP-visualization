@@ -1,18 +1,16 @@
 let frames = [];
 let colors = [];
-let labels = [];            // new: hold string labels
+let labels = [];
 let currentCamera = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const uploadBtn = document.getElementById('upload-csv');
     const fileInput = document.getElementById('csv-file');
 
-    // Trigger file selection when the user clicks the button
     uploadBtn.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Once a file is chosen, upload it
     fileInput.addEventListener('change', () => {
         const file = fileInput.files[0];
         if (!file) {
@@ -29,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         console.log(`File selected: ${file.name}`);
-        // Send the file to the server
+
         fetch('/process-data', {
             method: 'POST',
             body: formData,
@@ -37,18 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 console.log('Server responded with data');
-                frames = data.points; 
+                frames = data.points;
                 colors = data.colors;
                 labels = data.labels || [];        // capture incoming labels
                 // Update slider max based on number of frames
                 document.getElementById('epoch-slider').max = frames.length - 1;
-                renderFrame(0); 
+                renderFrame(0);
                 renderD3Frame(0);
             })
             .catch(error => console.error('Error:', error));
     });
 
-    // Fetch and show sample list
     fetch('/samples')
         .then(r => r.json())
         .then(data => {
@@ -64,31 +61,37 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ filename: name })
                     })
-                    .then(r => r.json())
-                    .then(data => {
-                        frames = data.points;
-                        colors = data.colors;
-                        labels = data.labels || [];        // capture incoming labels
-                        document.getElementById('epoch-slider').max = frames.length - 1;
-                        renderFrame(0);
-                        renderD3Frame(0);
-                    })
-                    .catch(console.error);
+                        .then(r => r.json())
+                        .then(data => {
+                            frames = data.points;
+                            colors = data.colors;
+                            labels = data.labels || [];        // capture incoming labels
+                            document.getElementById('epoch-slider').max = frames.length - 1;
+                            renderFrame(0);
+                            renderD3Frame(0);
+                        })
+                        .catch(console.error);
                 };
                 list.appendChild(li);
             });
         });
 
-    // Toggle sample panel with slide animation
     const panel = document.getElementById('samples-panel');
     document.getElementById('show-samples').addEventListener('click', () => panel.classList.add('open'));
     document.getElementById('close-samples').addEventListener('click', () => panel.classList.remove('open'));
 });
-// Update renderFrame to group points by color label and use fixed palette.
+
 function renderFrame(frameIndex) {
     const framePoints = frames[frameIndex];
+
+    const labelNames = {};
+    framePoints.forEach((_, i) => {
+        const key = colors[i];
+        labelNames[key] = labels[i] != null ? labels[i] : key;
+    });
+
     const groups = {};
-    // Group points by corresponding label
+
     framePoints.forEach((point, i) => {
         let xVal, yVal, zVal;
         if (typeof point === 'object' && !Array.isArray(point)) {
@@ -131,7 +134,7 @@ function renderFrame(frameIndex) {
                 'x: %{x:.2f}<br>' +
                 'y: %{y:.2f}<br>' +
                 'z: %{z:.2f}<extra></extra>',
-            name: `Group ${labelKey}`
+            name: `${labelNames[labelKey]}`
         };
     });
     const layout = currentCamera ? { scene: { camera: currentCamera } } : {};
